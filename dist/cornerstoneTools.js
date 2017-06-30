@@ -1,4 +1,4 @@
-/*! cornerstone-tools - 1.0.0 - 2017-10-27 | (c) 2017 Chris Hafey | https://github.com/chafey/cornerstoneTools */
+/*! cornerstone-tools - 1.0.0 - 2017-11-03 | (c) 2017 Chris Hafey | https://github.com/chafey/cornerstoneTools */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory(require("cornerstone-math"));
@@ -7980,14 +7980,13 @@ var FusionRenderer = function () {
       // For the base layer, go to the currentImageIdIndex
       var baseImageObject = imageStacks[0];
       var currentImageId = baseImageObject.imageIds[this.currentImageIdIndex];
-
-      // TODO: Figure out how to calculate the minimum distance
-      var minDistance = 1;
+      var overlayImageStacks = imageStacks.slice(1, imageStacks.length);
 
       cornerstone.loadAndCacheImage(currentImageId).then(function (image) {
-        if (_this.layerIds && _this.layerIds[0]) {
-          var currentLayerId = _this.layerIds[0];
-          var layer = cornerstone.getLayer(element, currentLayerId);
+        var baseLayerId = _this.layerIds[0];
+
+        if (baseLayerId) {
+          var layer = cornerstone.getLayer(element, baseLayerId);
 
           if (layer === undefined) {
             return;
@@ -8002,37 +8001,43 @@ var FusionRenderer = function () {
 
         cornerstone.displayImage(element, image);
 
-        // Splice out the first image
-        var overlayImageStacks = imageStacks.slice(1, imageStacks.length);
-
         // Loop through the remaining 'overlay' image stacks
         overlayImageStacks.forEach(function (imgObj, overlayLayerIndex) {
-          var imageId = _this.findImageFn(imgObj.imageIds, currentImageId, minDistance);
+          var imageId = _this.findImageFn(imgObj.imageIds, currentImageId);
+          var layerIndex = overlayLayerIndex + 1;
+          var currentLayerId = _this.layerIds[layerIndex];
+          var layer = void 0;
 
-          if (!imageId) {
-            return;
+          if (currentLayerId) {
+            layer = cornerstone.getLayer(element, currentLayerId);
+          } else {
+            // If no layer exists yet for this overlaid stack, create
+            // One and add it to the layerIds property for this instance
+            // Of the fusion renderer.
+            //
+            // TODO: Check this it is weird that we add the base image??
+            var _layerId = cornerstone.addLayer(element, image, imgObj.options);
+
+            _this.layerIds.push(_layerId);
+
+            layer = cornerstone.getLayer(element, _layerId);
           }
 
-          cornerstone.loadAndCacheImage(imageId).then(function (image) {
-            var layerIndex = overlayLayerIndex + 1;
-
-            if (_this.layerIds && _this.layerIds[layerIndex]) {
-              var _currentLayerId = _this.layerIds[layerIndex];
-              var _layer = cornerstone.getLayer(element, _currentLayerId);
-
-              if (_layer === undefined) {
-                return;
-              }
-
-              _layer.image = Object.assign({}, image);
-            } else {
-              var _layerId = cornerstone.addLayer(element, Object.assign({}, image), imgObj.options);
-
-              _this.layerIds.push(_layerId);
-            }
-
+          if (imageId) {
+            // If an imageId was returned from the findImage function,
+            // Load it, make sure it's visible and update the layer
+            // With the new image object.
+            cornerstone.loadAndCacheImage(imageId).then(function (image) {
+              layer.image = Object.assign({}, image);
+              cornerstone.updateImage(element, true);
+            });
+          } else {
+            // If no imageId was returned from the findImage function.
+            // This means that there is no relevant image to display
+            // On this layer. In this case, set the layer to invisible.
+            layer.image = undefined;
             cornerstone.updateImage(element, true);
-          });
+          }
         });
       });
     }
