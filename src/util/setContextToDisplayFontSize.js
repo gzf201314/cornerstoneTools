@@ -1,5 +1,3 @@
-import { cornerstone } from '../externalModules.js';
-
  /**
  * Sets the canvas context transformation matrix so it is scaled to show text
  * more cleanly even if the image is scaled up.  See
@@ -11,7 +9,7 @@ import { cornerstone } from '../externalModules.js';
  * @param fontSize
  * @returns {{fontSize: number, lineHeight: number, fontScale: number}}
  */
-export default function (enabledElement, context, fontSize) {
+function setContexToDisplayFontSize (enabledElement, context, fontSize, cornerstone) {
   const fontScale = 0.1;
 
   cornerstone.setToPixelCoordinateSystem(enabledElement, context, fontScale);
@@ -27,3 +25,9 @@ export default function (enabledElement, context, fontSize) {
     fontScale
   };
 }
+
+export default function (cornerstone) {
+  return function (enabledElement, context, fontScale) {
+    setContexToDisplayFontSize(enabledElement, context, fontScale, cornerstone);
+  };
+};

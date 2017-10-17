@@ -1,4 +1,3 @@
-import { cornerstone } from '../externalModules.js';
 import { getMaxSimultaneousRequests } from '../util/getMaxSimultaneousRequests.js';
 
 const requestPool = {
@@ -22,7 +21,7 @@ let maxNumRequests = {
 let awake = false;
 const grabDelay = 20;
 
-function addRequest (element, imageId, type, preventCache, doneCallback, failCallback) {
+function addRequest (element, imageId, type, preventCache, doneCallback, failCallback, cornerstone) {
   if (!requestPool.hasOwnProperty(type)) {
     throw new Error('Request type must be one of interaction, thumbnail, or prefetch');
   }
@@ -66,17 +65,17 @@ function clearRequestStack (type) {
   requestPool[type] = [];
 }
 
-function startAgain () {
+function startAgain (cornerstone) {
   if (!awake) {
     return;
   }
 
   setTimeout(function () {
-    startGrabbing();
+    startGrabbing(cornerstone);
   }, grabDelay);
 }
 
-function sendRequest (requestDetails) {
+function sendRequest (requestDetails, cornerstone) {
       // Increment the number of current requests of this type
   const type = requestDetails.type;
 
@@ -98,12 +97,12 @@ function sendRequest (requestDetails) {
               // Console.log(numRequests);
 
       doneCallback(image);
-      startAgain();
+      startAgain(cornerstone);
     }, function (error) {
       numRequests[type]--;
               // Console.log(numRequests);
       failCallback(error);
-      startAgain();
+      startAgain(cornerstone);
     });
 
     return;
@@ -140,16 +139,16 @@ function sendRequest (requestDetails) {
     numRequests[type]--;
           // Console.log(numRequests);
     doneCallback(image);
-    startAgain();
+    startAgain(cornerstone);
   }, function (error) {
     numRequests[type]--;
           // Console.log(numRequests);
     failCallback(error);
-    startAgain();
+    startAgain(cornerstone);
   });
 }
 
-function startGrabbing () {
+function startGrabbing (cornerstone) {
       // Begin by grabbing X images
   const maxSimultaneousRequests = getMaxSimultaneousRequests();
 
@@ -168,7 +167,7 @@ function startGrabbing () {
     const requestDetails = getNextRequest();
 
     if (requestDetails) {
-      sendRequest(requestDetails);
+      sendRequest(requestDetails, cornerstone);
     }
   }
 }
@@ -199,9 +198,15 @@ function getRequestPool () {
   return requestPool;
 }
 
-export default {
-  addRequest,
-  clearRequestStack,
-  startGrabbing,
-  getRequestPool
-};
+export default function (cs) {
+  return {
+    startGrabbing = function() {
+      startGrabbing(cs);
+    },
+    addRequest = function (element, imageId, type, preventCache, doneCallback, failCallback) {
+      addRequest(element, imageId, type, preventCache, doneCallback, failCallback, cs);
+    },
+    clearRequestStack,
+    getRequestPool
+  };
+}

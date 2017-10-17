@@ -1,43 +1,54 @@
-export { default as metaData } from './metaData.js';
+// Cornerstone dependents
+import { default as requestPoolManager } from './requestPool/requestPoolManager.js';
+import { default as setContextToDisplayFontSize } from './util/setContextToDisplayFontSize.js'; 
+import { default as scrollToIndex } from './util/scrollToIndex.js';
+import { default as getRGBPixels } from './util/getRGBPixels.js';
+import { default as getLuminance } from './util/getLuminance.js';
+import { default as calculateSUV } from './util/calculateSUV.js';
+import { default as probeTool4D } from './timeSeriesTools/probeTool4D.js';
 
+// Non Cornerstone dependents
 export { default as referenceLines } from './referenceLines/index.js';
 export { default as orientation } from './orientation/index.js';
-
-export { default as requestPoolManager } from './requestPool/requestPoolManager.js';
-
-export { default as setContextToDisplayFontSize } from './util/setContextToDisplayFontSize.js';
-export { default as scrollToIndex } from './util/scrollToIndex.js';
 export { default as scroll } from './util/scroll.js';
 export { default as roundToDecimal } from './util/roundToDecimal.js';
 export { projectPatientPointToImagePlane,
-         imagePointToPatientPoint,
-         planePlaneIntersection } from './util/pointProjector.js';
-
+  imagePointToPatientPoint,
+  planePlaneIntersection } from './util/pointProjector.js';
 export { default as pointInsideBoundingBox } from './util/pointInsideBoundingBox.js';
 export { default as pointInEllipse } from './util/pointInEllipse.js';
 export { default as pauseEvent } from './util/pauseEvent.js';
 export { default as isMouseButtonEnabled } from './util/isMouseButtonEnabled.js';
-export { default as getRGBPixels } from './util/getRGBPixels.js';
 export { getDefaultSimultaneousRequests,
-         getMaxSimultaneousRequests,
-         getBrowserInfo,
-         isMobileDevice } from './util/getMaxSimultaneousRequests.js';
-
-export { default as getLuminance } from './util/getLuminance.js';
+  getMaxSimultaneousRequests,
+  getBrowserInfo,
+  isMobileDevice } from './util/getMaxSimultaneousRequests.js';
 export { default as drawTextBox } from './util/drawTextBox.js';
 export { default as drawEllipse } from './util/drawEllipse.js';
 export { default as drawCircle } from './util/drawCircle.js';
 export { default as drawArrow } from './util/drawArrow.js';
 export { default as copyPoints } from './util/copyPoints.js';
-export { default as calculateSUV } from './util/calculateSUV.js';
 export { default as calculateEllipseStatistics } from './util/calculateEllipseStatistics.js';
-
-export { default as probeTool4D } from './timeSeriesTools/probeTool4D.js';
-export { default as incrementTimePoint } from './timeSeriesTools/incrementTimePoint.js';
 export { default as timeSeriesPlayer } from './timeSeriesTools/timeSeriesPlayer.js';
 export { timeSeriesScroll,
-         timeSeriesScrollWheel,
-         timeSeriesScrollTouchDrag } from './timeSeriesTools/timeSeriesScroll.js';
+  timeSeriesScrollWheel,
+  timeSeriesScrollTouchDrag } from './timeSeriesTools/timeSeriesScroll.js';
+
+export function initialize(cornerst) {
+  cornerstoneTools.metaData = cornerst.metaData;
+
+  cornerstoneTools.requestPoolManager = requestPoolManager(cornerst);
+  cornerstoneTools.setContextToDisplayFontSize = setContextToDisplayFontSize(cornerst);
+  cornerstoneTools.scrollToIndex = scrollToIndex(cornerst);
+  cornerstoneTools.getRGBPixels = getRGBPixels(cornerst);
+  cornerstoneTools.getLuminance = getLuminance(cornerst);
+  cornerstoneTools.calculateSUV = calculateSUV(cornerst);
+  cornerstoneTools.probeTool4D = probeTool4D(cornerst);
+}
+
+// imports not dealt with yet
+export { default as incrementTimePoint } from './timeSeriesTools/incrementTimePoint.js';
+
 
 export { default as wwwcSynchronizer } from './synchronization/wwwcSynchronizer.js';
 export { default as updateImageSynchronizer } from './synchronization/updateImageSynchronizer.js';

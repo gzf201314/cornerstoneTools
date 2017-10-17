@@ -8,7 +8,7 @@ import LineSampleMeasurement from '../measurementManager/lineSampleMeasurement.j
 
 const toolType = 'probe4D';
 
-function updateLineSample (measurementData) {
+function updateLineSample (measurementData, cornerstone) {
   const samples = [];
 
   measurementData.timeSeries.stacks.forEach(function (stack) {
@@ -31,7 +31,7 @@ function updateLineSample (measurementData) {
 }
 
 // /////// BEGIN ACTIVE TOOL ///////
-function createNewMeasurement (mouseEventData) {
+function createNewMeasurement (mouseEventData, cornerstone) {
   const timeSeriestoolData = getToolState(mouseEventData.element, 'timeSeries');
 
   if (timeSeriestoolData === undefined || timeSeriestoolData.data === undefined || timeSeriestoolData.data.length === 0) {
@@ -56,7 +56,7 @@ function createNewMeasurement (mouseEventData) {
     }
   };
 
-  updateLineSample(measurementData);
+  updateLineSample(measurementData, cornerstone);
   MeasurementManager.add(measurementData);
 
   return measurementData;
@@ -116,3 +116,10 @@ const probeTool4D = mouseButtonTool({
 });
 
 export default probeTool4D;
+
+export default function (cornerstone) {
+  return mouseButtonTool({
+    createNewMeasurement,
+    onImageRendered
+  })
+}
