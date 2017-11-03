@@ -103,12 +103,14 @@ is used by our example image loader-->
       cornerstoneTools.addToolState(element, 'stack', ctStack);
       cornerstoneTools.addToolState(element, 'stack', petStack);
       cornerstoneTools.addToolState(element, 'stackRenderer', renderer);
-
-      cornerstoneTools.scrollToIndex(element, 1);
+      
+      var toolData = cornerstoneTools.getToolState(element, 'stack');
+      renderer.render(element, toolData.data);
 
       cornerstoneTools.mouseInput.enable(element);
       cornerstoneTools.mouseWheelInput.enable(element);
-      cornerstoneTools.pan.activate(element, 1);
+      cornerstoneTools.stackScroll.activate(element, 1);
+      cornerstoneTools.pan.activate(element, 2);
       cornerstoneTools.zoom.activate(element, 4);
       cornerstoneTools.stackScrollWheel.activate(element);
   })

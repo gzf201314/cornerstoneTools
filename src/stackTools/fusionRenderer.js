@@ -27,19 +27,22 @@ export default class FusionRenderer {
 
     cornerstone.loadAndCacheImage(currentImageId).then((image) => {
       const baseLayerId = this.layerIds[0];
+      let baseLayer;
 
       if (baseLayerId) {
-        const layer = cornerstone.getLayer(element, baseLayerId);
+        baseLayer = cornerstone.getLayer(element, baseLayerId);
 
-        if (layer === undefined) {
+        if (baseLayer === undefined) {
           return;
         }
 
-        layer.image = Object.assign({}, image);
+        baseLayer.image = Object.assign({}, image);
       } else {
         const layerId = cornerstone.addLayer(element, Object.assign({}, image), baseImageObject.options);
 
         this.layerIds.push(layerId);
+
+        baseLayer = cornerstone.getLayer(element, baseLayerId);
       }
 
       cornerstone.displayImage(element, image);
@@ -57,9 +60,7 @@ export default class FusionRenderer {
           // If no layer exists yet for this overlaid stack, create
           // One and add it to the layerIds property for this instance
           // Of the fusion renderer.
-          //
-          // TODO: Check this it is weird that we add the base image??
-          const layerId = cornerstone.addLayer(element, image, imgObj.options);
+          const layerId = cornerstone.addLayer(element, undefined, imgObj.options);
 
           this.layerIds.push(layerId);
 
@@ -72,6 +73,7 @@ export default class FusionRenderer {
           // With the new image object.
           cornerstone.loadAndCacheImage(imageId).then((image) => {
             layer.image = Object.assign({}, image);
+            cornerstone.rescaleImage(baseLayer, layer);
             cornerstone.updateImage(element, true);
           });
         } else {
